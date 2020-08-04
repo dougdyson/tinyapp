@@ -30,7 +30,6 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
@@ -50,6 +49,9 @@ app.get("/urls", (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
+  const urlString = generateRandomString(6, charArray);
+  urlDatabase[urlString] = req.body.longURL;
+  console.log(urlDatabase[urlString]);
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
 
