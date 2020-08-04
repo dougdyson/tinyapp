@@ -11,10 +11,10 @@ const charArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', '
 
 function generateRandomString(length, charArray){
   let randomString = '';
-  for (let i = 0; i < charArray.length; i++) {
+  for (let i = 0; i < length; i++) {
     randomString += charArray[Math.floor(Math.random() * charArray.length)];
   }
-  return charArray;
+  return randomString;
 }
 
 const urlDatabase = {
