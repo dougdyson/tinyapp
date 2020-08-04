@@ -31,7 +31,8 @@ app.listen(PORT, () => {
 });
 
 app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
+  let templateVars = { greeting: 'Hello World!' };
+  res.render("hello_world", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
