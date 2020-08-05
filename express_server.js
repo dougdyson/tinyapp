@@ -7,7 +7,7 @@ app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-const charArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'y', 'z'];
+const charArray = ['a', 'A', 'b', 'C', 'd', 'e', 'f', 'g', 'G', 'h', 'I', 'j', 'k', 'K', 'L', 'm', 'n', 'o', 'p', 'Q', 'r', 'R', 'S', 's', 't', 'u', 'v', 'Y', 'z',' Z', '1', '2', '3', '4', '5', '6', '7', '8', '9','10'];
 
 function generateRandomString(length, charArray){
   let randomString = '';
@@ -52,12 +52,16 @@ app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
   const urlString = generateRandomString(6, charArray);
   urlDatabase[urlString] = req.body.longURL;
-  console.log(urlDatabase[urlString]);
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  res.redirect("/urls/" + urlString);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
 });
 
