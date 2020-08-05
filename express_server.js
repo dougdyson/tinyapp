@@ -48,7 +48,7 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
-  console.log(req.cookies.username);
+  //console.log(req.cookies.username);
   res.render("urls_index", templateVars);
 });
 
@@ -61,9 +61,8 @@ app.post("/urls", (req, res) => {
 
 app.post("/login", (req,res) => {
   let userName = req.body.username
-  console.log('Login selected:', userName);
+  //console.log('Login selected:', userName);
   res.cookie('username', userName);
-  //console.log('cookie username:', req.cookies.username);
   res.redirect("/urls");
 });
 
