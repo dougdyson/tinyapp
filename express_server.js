@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`TinyApp listening on port ${PORT}!`);
 });
 
 app.get("/hello", (req, res) => {
@@ -53,6 +53,12 @@ app.post("/urls", (req, res) => {
   const urlString = generateRandomString(6, charArray);
   urlDatabase[urlString] = req.body.longURL;
   res.redirect("/urls/" + urlString);
+});
+
+app.post("/urls/:shortURL", (req, res) => {
+  console.log('Update! ' + req.params.longURL);
+  urlDatabase[req.params.shortURL] = req.body.longURL;
+  res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
