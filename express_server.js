@@ -60,8 +60,15 @@ app.post("/urls", (req, res) => {
 
 app.post("/login", (req,res) => {
   let userName = req.body.username
-  //console.log('Login selected:', userName);
+  console.log('cookie username:', userName);
   res.cookie('username', userName);
+  res.redirect("/urls");
+});
+
+app.post("/logout", (req,res) => {
+  let userName = req.cookie.username
+  console.log('Logout selected:', userName);
+  res.clearCookie('username', userName);
   res.redirect("/urls");
 });
 
