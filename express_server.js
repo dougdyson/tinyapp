@@ -7,6 +7,9 @@ app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
+cookieParser = require('cookie-parser')
+app.use(cookieParser())
+
 const charArray = ['a', 'A', 'b', 'C', 'd', 'e', 'f', 'g', 'G', 'h', 'I', 'j', 'k', 'K', 'L', 'm', 'n', 'o', 'p', 'Q', 'r', 'R', 'S', 's', 't', 'u', 'v', 'Y', 'z',' Z', '1', '2', '3', '4', '5', '6', '7', '8', '9','10'];
 
 function generateRandomString(length, charArray){
@@ -49,10 +52,18 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
+  console.log('/urls', req.body);  // Log the POST request body to the console
   const urlString = generateRandomString(6, charArray);
   urlDatabase[urlString] = req.body.longURL;
   res.redirect("/urls/" + urlString);
+});
+
+app.post("/login", (req,res) => {
+  let userName = req.body.username
+  console.log('Login selected:', userName);
+  res.cookie('username', userName);
+  console.log('cookie username:', req.cookies.username);
+  res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL", (req, res) => {
