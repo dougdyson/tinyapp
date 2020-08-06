@@ -38,8 +38,14 @@ app.get("/hello", (req, res) => {
   res.render("hello_world", templateVars);
 });
 
+app.get("/register", (req, res) => {
+  let templateVars = { username: req.cookies.username };
+  res.render("register", templateVars);
+});
+
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVars = { username: req.cookies.username };
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls.json", (req, res) => {
@@ -86,7 +92,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies.username };
   res.render("urls_show", templateVars);
 });
 
