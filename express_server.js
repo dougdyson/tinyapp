@@ -27,10 +27,6 @@ function generateRandomString(length, charArray){
 function addNewUser (email, password) {
   const userID = generateRandomString(6, charArray)
 
-  // Need to add if email or password are empty, return HTML with a relevant error message
-  // Happy Path for now!
-  // Just discovered this is addressed in a later exercise!!
-
   console.log('userID' , userID, 'email:', email, 'password', password);
   
   let newUser = {
@@ -68,12 +64,12 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  let templateVars = { username: req.cookies.id };
+  let templateVars = { user: gUsers[req.cookies.userID]};
   res.render("register", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = { username: req.cookies.id };
+  let templateVars = { user: gUsers[req.cookies.userID] };
   res.render("urls_new", templateVars);
 });
 
@@ -82,16 +78,24 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies.id};
-  console.log("/urls req.cookies.id", req.cookies.id);
+  let templateVars = { urls: urlDatabase, user: gUsers[req.cookies.userID]};
+  //console.log("/urls req.cookies.id", req.cookies.id);
   res.render("urls_index", templateVars);
 });
 
 app.post("/register", (req, res) => {
   console.log('/register', req.body);  // Log the POST request body to the console
+  
+  //validate email and password are empty
+  if (!req.body.email || !req.body.password ){
+    throw 400;
+  }
+  //validate if email already exists
+
+
   let user = addNewUser(req.body.email, req.body.password)
   console.log('user', user);
-  console.log('cookie username:', user.id);
+  console.log('cookie user_id:', user.id);
   res.cookie('userID', user.id);
   res.redirect("/urls"); // need to make this the userID.
 });
@@ -106,14 +110,14 @@ app.post("/urls", (req, res) => {
 app.post("/login", (req,res) => {
   let id = req.body.id
   console.log('cookie id:', id);
-  res.cookie('username', id);
+  res.cookie('id', id);
   res.redirect("/urls");
 });
 
 app.post("/logout", (req,res) => {
   let userName = req.cookie.id
   console.log('Logout selected:', id);
-  res.clearCookie('username', id);
+  res.clearCookie('id', id);
   res.redirect("/urls");
 });
 
@@ -130,7 +134,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], id: req.cookies.username };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: gUsers[req.cookies.userID] };
   res.render("urls_show", templateVars);
 });
 
