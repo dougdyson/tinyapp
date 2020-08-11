@@ -44,6 +44,19 @@ function addNewUser (email, password) {
   return newUser;
 };
 
+function emailExists(email){
+
+  for (const key in gUsers) {
+    if (gUsers.hasOwnProperty(key)) {
+      const element = gUsers[key];
+      if (gUsers[key].email === email) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -83,6 +96,12 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+app.get("/login", (req, res) => {
+  let templateVars = { urls: urlDatabase, user: gUsers[req.cookies.userID]};
+  //console.log("/urls req.cookies.id", req.cookies.id);
+  res.render("login", templateVars);
+});
+
 app.post("/register", (req, res) => {
   console.log('/register', req.body);  // Log the POST request body to the console
   
@@ -91,6 +110,9 @@ app.post("/register", (req, res) => {
     throw 400;
   }
   //validate if email already exists
+  if (emailExists(req.body.email)){
+    throw 400;
+  }
 
 
   let user = addNewUser(req.body.email, req.body.password)
