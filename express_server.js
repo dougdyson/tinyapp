@@ -58,10 +58,7 @@ function emailExists(email){
 }
 
 
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
+const urlDatabase = {};
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -114,7 +111,6 @@ app.post("/register", (req, res) => {
     throw 400;
   }
 
-
   let user = addNewUser(req.body.email, req.body.password)
   console.log('user', user);
   console.log('cookie user_id:', user.id);
@@ -136,10 +132,11 @@ app.post("/login", (req,res) => {
   res.redirect("/urls");
 });
 
-app.post("/logout", (req,res) => {
-  let userName = req.cookie.id
+app.post("/logout", (req, res) => {
+  console.log('/logout req', req.body.id);
+  let id = req.cookie.id;
   console.log('Logout selected:', id);
-  res.clearCookie('id', id);
+  res.clearCookie('userID', id);
   res.redirect("/urls");
 });
 
