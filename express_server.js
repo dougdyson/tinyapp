@@ -113,7 +113,7 @@ app.post("/register", (req, res) => {
 
   let user = addNewUser(req.body.email, req.body.password)
   console.log('user', user);
-  console.log('cookie user_id:', user.id);
+  console.log('cookie userID:', user.id);
   res.cookie('userID', user.id);
   res.redirect("/urls"); // need to make this the userID.
 });
@@ -134,9 +134,9 @@ app.post("/login", (req,res) => {
 
 app.post("/logout", (req, res) => {
   console.log('/logout req', req.body.id);
-  let id = req.cookie.id;
-  console.log('Logout selected:', id);
-  res.clearCookie('userID', id);
+  let id = req.body.id;
+  console.log('Logout selected - cookie userID:', id);
+  res.clearCookie('userID');
   res.redirect("/urls");
 });
 
