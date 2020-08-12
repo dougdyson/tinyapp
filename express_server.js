@@ -50,6 +50,7 @@ function emailExists(email){
     if (gUsers.hasOwnProperty(key)) {
       const element = gUsers[key];
       if (gUsers[key].email === email) {
+        console.log('emailExists === true');
         return true;
       }
     }
@@ -89,7 +90,8 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase, user: gUsers[req.cookies.userID]};
-  //console.log("/urls req.cookies.id", req.cookies.id);
+  console.log("/urls req.cookies.id", req.cookies.userID);
+  console.log("/urls gUsers[req.cookies.userID]", gUsers[req.cookies.userID]);
   res.render("urls_index", templateVars);
 });
 
@@ -100,7 +102,6 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  console.log('/register', req.body);  // Log the POST request body to the console
   
   //validate email and password are empty
   if (!req.body.email || !req.body.password ){
@@ -112,42 +113,46 @@ app.post("/register", (req, res) => {
   }
 
   let user = addNewUser(req.body.email, req.body.password)
-  console.log('user', user);
-  console.log('cookie userID:', user.id);
+  
   res.cookie('userID', user.id);
   res.redirect("/urls"); // need to make this the userID.
 });
 
 app.post("/urls", (req, res) => {
-  console.log('/urls', req.body);  // Log the POST request body to the console
+  // console.log('/urls req.body', req.body);  // Log the POST request body to the console
   const urlString = generateRandomString(6, charArray);
-  urlDatabase[urlString] = req.body.longURL;
+  const userid = req.cookies.userID;
+  // console.log('/urls userid', userid);
+  longurl = req.body.longURL
+  urlDatabase[urlString] = {longURL: longurl, userID: gUsers[userid].email};
+  console.log(urlDatabase[urlString]);
   res.redirect("/urls/" + urlString);
 });
 
 app.post("/login", (req,res) => {
   let id = req.body.id
   console.log('cookie id:', id);
+    //validate if email already exists
+    if (emailExists(req.body.email)){
+      console.log('emailExists:', eq.body.email);
+    }
   res.cookie('id', id);
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-  console.log('/logout req', req.body.id);
-  let id = req.body.id;
-  console.log('Logout selected - cookie userID:', id);
   res.clearCookie('userID');
   res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  console.log('Update! ' + req.params.longURL);
+  // console.log('Update! ' + req.params.longURL);
   urlDatabase[req.params.shortURL] = req.body.longURL;
   res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  console.log('Delete! ' + req.params.shortURL);
+  // console.log('Delete! ' + req.params.shortURL);
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
 });
