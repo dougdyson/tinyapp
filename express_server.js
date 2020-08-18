@@ -27,7 +27,7 @@ function generateRandomString(length, charArray){
 function addNewUser (email, password) {
   const userID = generateRandomString(6, charArray)
 
-  console.log('userID' , userID, 'email:', email, 'password', password);
+  //// console.log('userID' , userID, 'email:', email, 'password', password);
   
   let newUser = {
     id        : userID,
@@ -35,11 +35,11 @@ function addNewUser (email, password) {
     password  : password
   };
 
-  console.log('newUser', newUser);
+  // console.log('newUser', newUser);
   
   gUsers[userID] = newUser;
 
-  console.log('gUsers:', gUsers);
+  // console.log('gUsers:', gUsers);
 
   return newUser;
 };
@@ -50,7 +50,7 @@ function emailExists(email){
     if (gUsers.hasOwnProperty(key)) {
       const element = gUsers[key];
       if (gUsers[key].email === email) {
-        console.log('emailExists === true');
+        // console.log('emailExists === true');
         return true;
       }
     }
@@ -90,14 +90,14 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase, user: gUsers[req.cookies.userID]};
-  console.log("/urls req.cookies.id", req.cookies.userID);
-  console.log("/urls gUsers[req.cookies.userID]", gUsers[req.cookies.userID]);
+  // console.log("/urls req.cookies.id", req.cookies.userID);
+  console.log("/urls templateVars:", templateVars);
   res.render("urls_index", templateVars);
 });
 
 app.get("/login", (req, res) => {
   let templateVars = { urls: urlDatabase, user: gUsers[req.cookies.userID]};
-  //console.log("/urls req.cookies.id", req.cookies.id);
+  console.log("/urls templateVars:", templateVars);
   res.render("login", templateVars);
 });
 
@@ -119,22 +119,22 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  // console.log('/urls req.body', req.body);  // Log the POST request body to the console
+  console.log('/urls req.body', req.body);  // Log the POST request body to the // console
   const urlString = generateRandomString(6, charArray);
   const userid = req.cookies.userID;
-  // console.log('/urls userid', userid);
+  console.log('/urls userid', userid);
   longurl = req.body.longURL
-  urlDatabase[urlString] = {longURL: longurl, userID: gUsers[userid].email};
-  console.log(urlDatabase[urlString]);
-  res.redirect("/urls/" + urlString);
+  urlDatabase[urlString] = {longURL: longurl, userID: gUsers[userid].id};
+  console.log('urlDatabase[urlString]', urlDatabase[urlString]);
+  res.redirect("/urls");// + urlString);
 });
 
 app.post("/login", (req,res) => {
   let id = req.body.id
-  console.log('cookie id:', id);
+  // console.log('cookie id:', id);
     //validate if email already exists
     if (emailExists(req.body.email)){
-      console.log('emailExists:', eq.body.email);
+      // console.log('emailExists:', eq.body.email);
     }
   res.cookie('id', id);
   res.redirect("/urls");
@@ -146,13 +146,13 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  // console.log('Update! ' + req.params.longURL);
+  // // console.log('Update! ' + req.params.longURL);
   urlDatabase[req.params.shortURL] = req.body.longURL;
   res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  // console.log('Delete! ' + req.params.shortURL);
+  // // console.log('Delete! ' + req.params.shortURL);
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
 });
