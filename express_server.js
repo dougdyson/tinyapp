@@ -117,10 +117,15 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase, user: gUsers[req.cookies.userID]};
-  // console.log("/urls req.cookies.id", req.cookies.userID);
+  let user = gUsers[req.cookies.userID]
+  let templateVars = { urls: urlDatabase, user: user};
+  console.log("/urls req.cookies.id", req.cookies.userID);
   console.log("/urls templateVars:", templateVars);
-  res.render("urls_index", templateVars);
+  if (user) {
+    res.render("urls_index", templateVars);
+  } else {
+    res.render("error");
+  }
 });
 
 app.get("/login", (req, res) => {
@@ -154,11 +159,12 @@ app.post("/urls", (req, res) => {
   longurl = req.body.longURL
   urlDatabase[urlString] = {longURL: longurl, userID: gUsers[userid].id};
   console.log('userid:', userid,'urlDatabase[urlString]', urlDatabase[urlString]);
-  if (userid) {
+  //if (userid) {
     res.redirect("/urls");// + urlString);
-  } else {
-    res.redirect("/error");
-  }
+  //} 
+  // else {
+  //   res.redirect("/error");
+  // }
 });
 
 app.post("/login", (req,res) => {
@@ -178,7 +184,7 @@ app.post("/login", (req,res) => {
 
 app.post("/logout", (req, res) => {
   res.clearCookie('userID');
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 app.post("/urls/:shortURL", (req, res) => {
