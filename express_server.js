@@ -93,14 +93,14 @@ function emailExists(email){
 }
 function getUsersURLDatabase (userid){
   let database = {};
-  console.log('getUsersURLDatabase userid:',userid);
+  console.log('SOF getUsersURLDatabase userid:', userid);
   console.log('===========================');
   if (gURLDatabase) {
     for (const key in gURLDatabase) {
       if (gURLDatabase[key].userID === userid){
         console.log('getUsersURLDatabase gURLDatabase[key].userID:', gURLDatabase[key].userID, 'userid:', userid);
         const longURL = gURLDatabase[key].longURL
-        const shortURL = gURLDatabase[key]
+        const shortURL = key;
         console.log('getUsersURLDatabase shortURL key:', shortURL, 'longURL:', longURL);
         if (database) {
           database = {shortURL, longURL};
@@ -182,7 +182,7 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log('/urls req.body', req.body);  // Log the POST request body to the console
+  //console.log('/urls req.body', req.body);  // Log the POST request body to the console
   const urlString = generateRandomString(6, charArray);
   const userid = req.session.userID;
   console.log('/urls urlString:', urlString, 'userid:', userid);
