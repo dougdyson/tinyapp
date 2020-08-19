@@ -45,7 +45,7 @@ function helpers(userDB, urlDB){
     for (const key in userDB) {
       if (userDB[key].email === email) {
         user = userDB[key];
-        // console.log('getUserByEmail:', user);
+        console.log('getUserByEmail:', user);
       }
     }
     return user;
