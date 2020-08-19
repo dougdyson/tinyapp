@@ -10,6 +10,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
+const bcrypt = require('bcrypt');
+
 const charArray = ['a', 'A', 'b', 'C', 'd', 'e', 'f', 'g', 'G', 'h', 'I', 'j', 'k', 'K', 'L', 'm', 'n', 'o', 'p', 'Q', 'r', 'R', 'S', 's', 't', 'u', 'v', 'Y', 'z',' Z', '1', '2', '3', '4', '5', '6', '7', '8', '9','10'];
 
 let gUsers = {};
@@ -26,33 +28,59 @@ function generateRandomString(length, charArray){
 
 function addNewUser (email, password) {
   const userID = generateRandomString(6, charArray)
-
-  //// console.log('userID' , userID, 'email:', email, 'password', password);
+  const hashedPassword = bcrypt.hashSync(password, 10);
   
   let newUser = {
     id        : userID,
     email     : email,
-    password  : password
-  };
-
-  // console.log('newUser', newUser);
+    password  : hashedPassword
+  };  
   
   gUsers[userID] = newUser;
-
-  // console.log('gUsers:', gUsers);
 
   return newUser;
 };
 
 function emailExists(email){
 
+  console.log('SOF emailExists:', email);
+
   for (const key in gUsers) {
-    if (gUsers.hasOwnProperty(key)) {
-      const element = gUsers[key];
-      if (gUsers[key].email === email) {
-        // console.log('emailExists === true');
+    if (gUsers[key].email === email) {
+      console.log('emailExists gUsers[key].email:', gUsers[key].email, 'email:', email);
+      return true;
+    }
+  }
+  return false;
+}
+
+function getUser(email){
+  let user = {};
+
+  for (const key in gUsers) {
+    if (gUsers[key].email === email) {
+      user = gUsers[key];
+      console.log('getUser:', user);
+    }
+  }
+  return user;
+}
+
+function loginUser (email, password) {
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  if (emailExists(email)){
+    if (bcrypt.compareSync(password, hashedPassword)) {
+      console.log('loginUser: true');
+      return true;
+    }
+  }
+}
+
+function emailExists(email){
+
+  for (const key in gUsers) {
+    if (gUsers[key].email === email) {
         return true;
-      }
     }
   }
   return false;
@@ -97,7 +125,7 @@ app.get("/urls", (req, res) => {
 
 app.get("/login", (req, res) => {
   let templateVars = { urls: urlDatabase, user: gUsers[req.cookies.userID]};
-  console.log("/urls templateVars:", templateVars);
+  console.log("/login templateVars:", templateVars);
   res.render("login", templateVars);
 });
 
@@ -125,19 +153,27 @@ app.post("/urls", (req, res) => {
   console.log('/urls userid', userid);
   longurl = req.body.longURL
   urlDatabase[urlString] = {longURL: longurl, userID: gUsers[userid].id};
-  console.log('urlDatabase[urlString]', urlDatabase[urlString]);
-  res.redirect("/urls");// + urlString);
+  console.log('userid:', userid,'urlDatabase[urlString]', urlDatabase[urlString]);
+  if (userid) {
+    res.redirect("/urls");// + urlString);
+  } else {
+    res.redirect("/error");
+  }
 });
 
 app.post("/login", (req,res) => {
-  let id = req.body.id
-  // console.log('cookie id:', id);
-    //validate if email already exists
-    if (emailExists(req.body.email)){
-      // console.log('emailExists:', eq.body.email);
-    }
-  res.cookie('id', id);
-  res.redirect("/urls");
+  const email = req.body.email;
+  const password = req.body.password;
+  
+  console.log('SOF /login email:', email, 'password:', password);
+
+  if (loginUser (email, password)) {
+    user = getUser(email);x
+    res.cookie('userID', user.id);
+    res.redirect("/urls");
+  } else {
+    throw 400;
+  }
 });
 
 app.post("/logout", (req, res) => {
