@@ -13,21 +13,21 @@
   <main style="margin: 1em;">
     <h3>My URLs</h3>
     <table class="table">
-      <thead>
+      <head>
         <tr>
           <th scope="col">Short URL</th>
           <th scope="col">Long URL</th>
           <th scope="col">Edit</th>
           <th scope="col">Delete</th>
         </tr>
-      </thead>
+      </head>
       <tbody>
-        <% for(let url in urls) { %>
+        <% for(let index in urls) { %>
           <tr>
-            <td>https://<%= url %></td>
-            <td><%= urls[url].longURL %></td>
-            <td><a class="btn btn-outline-primary" href="/urls/<%= url %>">Edit</a></td>
-            <td><form method="POST" action="/urls/<%= url %>/delete"><button type="submit" class="btn btn-outline-danger">Delete</button></form></td>
+            <td>https://<%= index %></td>
+            <td><%= urls[index].longURL %></td>
+            <td><a class="btn btn-outline-primary" href="/urls/<%= index %>">Edit</a></td>
+            <td><form method="POST" action="/urls/<%= index %>/delete"><button type="submit" class="btn btn-outline-danger">Delete</button></form></td>
           </tr>
         <% } %>
       </tbody>
