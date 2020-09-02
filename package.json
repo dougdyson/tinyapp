@@ -2,10 +2,10 @@
   "name": "tinyapp",
   "version": "1.0.0",
   "description": "url shortening project exercise",
-  "main": "index.js",
+  "main": "express_server.js",
   "scripts": {
     "start": "./node_modules/.bin/nodemon -L express_server.js",
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "CHOKIDAR_USEPOLLING=1 ./node_modules/mocha/bin/mocha --watch"
   },
   "repository": {
     "type": "git",
@@ -28,7 +28,13 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
+    "chokidar": "^3.4.2",
+    "eslint": "^7.8.1",
+    "glob": "^7.1.6",
     "mocha": "^8.1.1",
-    "nodemon": "^1.17.5"
+    "morgan": "^1.10.0",
+    "nodemon": "^1.19.4",
+    "onchange": "^7.0.2",
+    "watch": "^1.0.2"
   }
 }

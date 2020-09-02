@@ -1,10 +1,10 @@
 const bcrypt = require('bcrypt');
 
-function helpers(userDB, urlDB){
+function helpers(userDB, urlDB) {
 
   const charArray = ['a', 'A', 'b', 'C', 'd', 'e', 'f', 'g', 'G', 'h', 'I', 'j', 'k', 'K', 'L', 'm', 'n', 'o', 'p', 'Q', 'r', 'R', 'S', 's', 't', 'u', 'v', 'Y', 'z',' Z', '1', '2', '3', '4', '5', '6', '7', '8', '9','10'];
 
-  function generateRandomString(length, charArray){
+  function generateRandomString(length, charArray) {
     // currently no check for uniqueness!!!
     let randomString = '';
     for (let i = 0; i < length; i++) {
@@ -12,21 +12,21 @@ function helpers(userDB, urlDB){
     }
     return randomString;
   }
-  function addNewUser (email, password) {
-    const userID = generateRandomString(6, charArray)
+  function addNewUser(email, password) {
+    const userID = generateRandomString(6, charArray);
     const hashedPassword = bcrypt.hashSync(password, 10);
     
     let newUser = {
       id        : userID,
       email     : email,
       password  : hashedPassword
-    };  
+    };
     
     userDB[userID] = newUser;
 
     return newUser;
-  };
-  function emailExists(email){
+  }
+  function emailExists(email) {
 
     // console.log('SOF emailExists:', email);
 
@@ -38,10 +38,9 @@ function helpers(userDB, urlDB){
     }
     return false;
   }
-  function getUserByEmail(email){
+  function getUserByEmail(email) {
     let user = {};
-    let database = {}
-
+    
     for (const key in userDB) {
       if (userDB[key].email === email) {
         user = userDB[key];
@@ -50,10 +49,10 @@ function helpers(userDB, urlDB){
     }
     return user;
   }
-  function checkIfUserExists (email, password) {
+  function checkIfUserExists(email, password) {
     //const hashedPassword = bcrypt.hashSync(password, 10);
-    if (emailExists(email)){
-      user = getUserByEmail(email);
+    if (emailExists(email)) {
+      let user = getUserByEmail(email);
       const hashedPassword = user.password;
       // console.log('checkIfUserExists emailExists: true');
       if (bcrypt.compareSync(password, hashedPassword)) {
@@ -64,11 +63,11 @@ function helpers(userDB, urlDB){
     }
     return false;
   }
-  function emailExists(email){
+  function emailExists(email) {
 
     for (const key in userDB) {
       if (userDB[key].email === email) {
-          return true;
+        return true;
       }
     }
     return false;
@@ -78,8 +77,7 @@ function helpers(userDB, urlDB){
     addNewUser,
     emailExists,
     getUserByEmail,
-    checkIfUserExists,
-    emailExists
+    checkIfUserExists
   };
 }
 

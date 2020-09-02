@@ -10,15 +10,15 @@ const testUsers = {
   },
   "user2RandomID": {
     id: "user2RandomID", 
-    email: "user2@example.com", 
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
 };
 const {getUserByEmail} = helpers(testUsers);
 describe('getUserByEmail', function() {
-  it('should return a user with valid email', function() {
+  it('should not return not a user with an invalid email', function() {
     const user = getUserByEmail("user@example.com")
     const expectedOutput = "userRandomID";
-    assert()
+    assert.notEqual(user, "user2RandomID", true);
   });
 });

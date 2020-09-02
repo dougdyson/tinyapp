@@ -13,27 +13,28 @@ app.use(cookieSession({
 
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
-}))
+}));
 
-let gUsers = {};
+let gUsers = {"userRandomID": {
+  id: "userRandomID",
+  email: "user@example.com",
+  password: "purple-monkey-dinosaur"
+},
+"user2RandomID": {
+  id: "user2RandomID",
+  email: "user2@example.com",
+  password: "dishwasher-funk"
+}};
 let gURLDatabase = {};
+
+// seeds for generateRandomString and userID in addNewUser.
 const charArray = ['a', 'A', 'b', 'C', 'd', 'e', 'f', 'g', 'G', 'h', 'I', 'j', 'k', 'K', 'L', 'm', 'n', 'o', 'p', 'Q', 'r', 'R', 'S', 's', 't', 'u', 'v', 'Y', 'z',' Z', '1', '2', '3', '4', '5', '6', '7', '8', '9','10'];
 
-// seeds for generateRandomString and userID in addNewUser 
 const helpers = require('./helpers')(gUsers, gURLDatabase);
 
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
 });
-
-// app.get("/", (req, res) => {
-//   const templateVars = { user: gUsers[req.session.userID]};
-//   if (templateVars) {
-//     res.redirect("/urls");
-//   } else {
-//     res.redirect("/login");
-//   }
-// });
 
 app.get("/register", (req, res) => {
   let templateVars = { user: gUsers[req.session.userID]};
@@ -50,7 +51,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let user = gUsers[req.session.userID]
+  let user = gUsers[req.session.userID];
   let templateVars = { urls: gURLDatabase, user: user};
   console.log("/urls req.session.id:", req.session.userID, 'templateVars:', templateVars);
   // console.log("/urls templateVars:", templateVars);
@@ -69,16 +70,16 @@ app.get("/login", (req, res) => {
 
 app.post("/register", (req, res) => {
   
-  //validate email and password are empty
-  if (!req.body.email || !req.body.password ){
+  //validate email and password are empty!!
+  if (!req.body.email || !req.body.password) {
     throw 400;
   }
   //validate if email already exists
-  if (helpers.emailExists(req.body.email)){
+  if (helpers.emailExists(req.body.email)) {
     throw 400;
   }
 
-  let user = helpers.addNewUser(req.body.email, req.body.password)
+  let user = helpers.addNewUser(req.body.email, req.body.password);
   
   //res.cookie('userID', user.id);
   req.session.userID = user.id;
@@ -90,13 +91,12 @@ app.post("/urls", (req, res) => {
   const urlString = helpers.generateRandomString(6, charArray);
   const userid = req.session.userID;
   // console.log('/urls userid', userid);
-  longurl = req.body.longURL
+  const longurl = req.body.longURL;
   gURLDatabase[urlString] = {longURL: longurl, userID: gUsers[userid].id};
   console.log('userid:', userid,'gURLDatabase[urlString]', gURLDatabase[urlString]);
   if (userid) {
     res.redirect("/urls");// + urlString);
-  } 
-  else {
+  } else {
     res.redirect("/error");
   }
 });
@@ -107,9 +107,9 @@ app.post("/login", (req,res) => {
   
   // console.log('SOF /login email:', email, 'password:', password);
 
-  if (helpers.checkIfUserExists (email, password)) {
+  if (helpers.checkIfUserExists(email, password)) {
     // console.log('/login checkIfUserExists = true');
-    user = helpers.getUserByEmail(email);
+    const user = helpers.getUserByEmail(email);
     //res.cookie('userID', user.id);
     req.session.userID = user.id;
     res.redirect("/urls");
