@@ -62,15 +62,8 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   
   const user = gUsers[req.session.userID];
-  
   const userURLdb = helpers.getUserURLs(user, gURLDatabase);
-  
   const templateVars = { urls: userURLdb, user: user};
-
-  console.log('GET /urls user:', user);
-  
-
-  console.log('GET /urls userURLdb:', userURLdb);
 
   if (user) {
     res.render("urls_index", templateVars);
@@ -81,7 +74,6 @@ app.get("/urls", (req, res) => {
 
 app.get("/login", (req, res) => {
   let templateVars = { urls: gURLDatabase, user: gUsers[req.session.userID]};
-  // console.log("/login templateVars:", templateVars);
   res.render("login", templateVars);
 });
 
@@ -109,7 +101,6 @@ app.post("/urls", (req, res) => {
   const longurl = req.body.longURL;
   
   gURLDatabase[urlString] = {longURL: longurl, userID: gUsers[userid].id};
-  console.log('POST /urls gURLDatabase[urlString]:', gURLDatabase[urlString]);
   
   if (userid) {
     res.redirect("/urls");
@@ -123,9 +114,7 @@ app.post("/login", (req,res) => {
   const password = req.body.password;
   
   if (helpers.checkIfUserExists(email, password)) {
-    // console.log('/login checkIfUserExists = true');
     const user = helpers.getUserByEmail(email);
-    //res.cookie('userID', user.id);
     req.session.userID = user.id;
     res.redirect("/urls");
   } else {
@@ -135,7 +124,6 @@ app.post("/login", (req,res) => {
 
 app.post("/logout", (req, res) => {
   req.session = null;
-  // console.log('/logout');
   res.redirect("/login");
 });
 
@@ -149,7 +137,6 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  console.log('Delete! ' + req.params.shortURL);
   delete gURLDatabase[req.params.shortURL];
   res.redirect("/urls");
 });
