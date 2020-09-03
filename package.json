@@ -12,7 +12,11 @@
     "url": "git+https://github.com/HatHeadNinja/tinyapp.git"
   },
   "keywords": [],
+<<<<<<< HEAD
   "author": "Unfamous Dyson",
+=======
+  "author": "unfamousdyson",
+>>>>>>> b591eb7dac6788558e1203f3e89c52fa540ce522
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/HatHeadNinja/tinyapp/issues"
