@@ -5,6 +5,9 @@ const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const alert = require("js-alert");
 
+const notLoggedInErrMessage = 'You need to be logged in for that. Please login and try again!';
+
+
 app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -52,12 +55,19 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = { user: gUsers[req.session.userID] };
+  const user = gUsers[req.session.userID]
+  const templateVars = { user };
+  if (!user) {
+    res.status(400).send(notLoggedInErrMessage);
+  }
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls.json", (req, res) => {
-  res.json(gURLDatabase);
+  const user = gUsers[req.session.userID];
+  if (user) {
+    res.json(gURLDatabase);
+  }
 });
 
 app.get("/urls", (req, res) => {
@@ -74,7 +84,13 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  let templateVars = { urls: gURLDatabase, user: gUsers[req.session.userID]};
+  const user = gUsers[req.session.userID];
+  const templateVars = { urls: gURLDatabase, user};
+
+  if (user) {
+    return res.redirect("/urls");
+  }
+
   res.render("login", templateVars);
 });
 
@@ -82,16 +98,18 @@ app.post("/register", (req, res) => {
   
   //validate email and password are empty!!
   if (!req.body.email || !req.body.password) {
-    res.status(400).send('Email and/or password cannot be left blank. Please hit the back button try again!');
+    return res.status(400).send('Email and/or password cannot be left blank. Please hit the back button and try again!');
   }
   //validate if email already exists
   if (helpers.emailExists(req.body.email)) {
-    res.status(400).send('Email address already exists. Please hit the back button try again!');
+    return res.status(400).send('Email address already exists. Please hit the back button and try again!');
   }
-
-  const user = helpers.addNewUser(req.body.email, req.body.password);
   
-  req.session.userID = user.id;
+  if ((req.body.email !== '') && (req.body.email !== '')) {
+    const user = helpers.addNewUser(req.body.email, req.body.password);
+    req.session.userID = user.id;
+  }
+  
   res.redirect("/urls");
 });
 
@@ -99,26 +117,35 @@ app.post("/urls", (req, res) => {
   const urlString = helpers.generateUniqueRandomString();
   const userid = req.session.userID;
   const longurl = req.body.longURL;
+
+  if (longurl === '') {
+    return res.status(400).send('WHOA! URL cannot be blank. Hit the back button and enter a URL.');
+  }
   
   gURLDatabase[urlString] = {longURL: longurl, userID: gUsers[userid].id};
   
   if (userid) {
     res.redirect("/urls");
   } else {
-    res.status(400).send('WHOA! Need to be logged in to do that! Please hit the back button and login!');
+    return res.status(400).send(notLoggedInErrMessage);
   }
 });
 
 app.post("/login", (req,res) => {
   const email = req.body.email;
   const password = req.body.password;
+
+  //validate email and password are empty!!
+  if (!req.body.email || !req.body.password) {
+    return res.status(400).send('Email and/or password cannot be left blank. Please hit the back button and try again!');
+  }
   
   if (helpers.checkIfUserExists(email, password)) {
     const user = helpers.getUserByEmail(email);
     req.session.userID = user.id;
-    res.redirect("/urls");
+    res.redirect("/urls");  
   } else {
-    res.status(400).send('Your userid or password in incorrect. Please hit the back button try again!');
+    return res.status(400).send('Trouble logging in. Please hit the back button to try again or register for an account if you do not have one yet!');
   }
 });
 
@@ -129,15 +156,22 @@ app.post("/logout", (req, res) => {
 
 app.post("/urls/:shortURL", (req, res) => {
   const userid = req.session.userID;
-  gURLDatabase[req.params.shortURL] = {
-    'longURL': req.body.longURL,
-    'userID' : userid
+  if (userid) {
+    gURLDatabase[req.params.shortURL] = {
+      'longURL': req.body.longURL,
+      'userID' : userid
+    }
   }
   res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete gURLDatabase[req.params.shortURL];
+  const userid = req.session.userID;
+  
+  if (userid) {
+    delete gURLDatabase[req.params.shortURL];
+  }
+
   res.redirect("/urls");
 });
 
@@ -147,13 +181,21 @@ app.get("/urls/:shortURL", (req, res) => {
     longURL: gURLDatabase[req.params.shortURL], 
     user: gUsers[req.session.userID] 
   };
+  if (!user) {
+    res.status(400).send(notLoggedInErrMessage);
+  }
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
   
   const externalURL = gURLDatabase[req.params.shortURL];
+
+  if (externalURL) {
+    res.redirect(externalURL.longURL);
+  } else {
+    return res.status(400).send('OH NO! TinyApp URL not found!');
+  }
   
-  res.redirect(externalURL.longURL);
 });
 

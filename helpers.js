@@ -25,11 +25,8 @@ function helpers(userDB, urlDB) {
 
   function emailExists(email) {
 
-    // console.log('SOF emailExists:', email);
-
     for (const key in userDB) {
       if (userDB[key].email === email) {
-        // console.log('emailExists userDB[key].email:', userDB[key].email, 'email:', email);
         return true;
       }
     }
@@ -42,23 +39,19 @@ function helpers(userDB, urlDB) {
     for (const key in userDB) {
       if (userDB[key].email === email) {
         user = userDB[key];
-        console.log('getUserByEmail:', user);
       }
     }
     return user;
   }
 
   function checkIfUserExists(email, password) {
-    //const hashedPassword = bcrypt.hashSync(password, 10);
+    
     if (emailExists(email)) {
       let user = getUserByEmail(email);
       const hashedPassword = user.password;
-      // console.log('checkIfUserExists emailExists: true');
       if (bcrypt.compareSync(password, hashedPassword)) {
-        // console.log('checkIfUserExists password compare: true');
         return true;
       }
-      // console.log('checkIfUserExists password compare: false');
     }
     return false;
   }
@@ -87,7 +80,7 @@ function helpers(userDB, urlDB) {
         userURLdb[key] = {longURL: urlDB[key].longURL, userID: userID};
       }
     }
-
+    
     return userURLdb;
   }
 
