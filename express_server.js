@@ -88,9 +88,8 @@ app.post("/register", (req, res) => {
     throw 400;
   }
 
-  let user = helpers.addNewUser(req.body.email, req.body.password);
+  const user = helpers.addNewUser(req.body.email, req.body.password);
   
-  //res.cookie('userID', user.id);
   req.session.userID = user.id;
   res.redirect("/urls");
 });
@@ -118,7 +117,8 @@ app.post("/login", (req,res) => {
     req.session.userID = user.id;
     res.redirect("/urls");
   } else {
-    throw 400;
+    alert('Your userid or password in incorrect. Please try again');
+    res.redirect("/login");
   }
 });
 
@@ -152,8 +152,8 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   
-  const longURL = gURLDatabase[req.params.shortURL];
+  const externalURL = gURLDatabase[req.params.shortURL];
   
-  res.redirect(longURL.longURL);
+  res.redirect(externalURL.longURL);
 });
 
