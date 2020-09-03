@@ -73,10 +73,33 @@ function helpers(userDB, urlDB) {
     return false;
   }
 
-  function getUserURLs(id, urlDB){
+  function getUserURLs(user, urlDB){
 
-    //urlsForUser(id)
+    if (!user) {
+      return {};
+    }
+    
+    let userURLdb = {};
+    const userID = user.id;
 
+    //console.log('HELPER.JS getUserURLS user:', user);
+    console.log('HELPER.JS getUserURLS urlDB:');
+    console.log(urlDB);
+    console.log('HELPER.JS getUserURLS user.id', user.id);
+
+    for (const key in urlDB) {
+      
+      if (urlDB[key].userID === userID) {
+        console.log('HELPER.JS getUserURLS IF===TRUE urlDB[key].userID:', urlDB[key].userID);
+        userURLdb[key] = {longURL: urlDB[key].longURL, userID: userID};
+        console.log('HELPER.JS getUserURLS IF===TRUE userURLdb[key]:', userURLdb[key]);
+      }
+      
+    }
+
+    console.log('HELPER.JS getUserURLS userURLdb:', userURLdb);
+
+    return userURLdb;
   }
 
   return {
@@ -84,7 +107,8 @@ function helpers(userDB, urlDB) {
     addNewUser,
     emailExists,
     getUserByEmail,
-    checkIfUserExists
+    checkIfUserExists,
+    getUserURLs
   };
 }
 

@@ -24,8 +24,8 @@
       <tbody>
         <% for(let index in urls) { %>
           <tr>
-            <td>https://<%= index %></td>
-            <td><%= urls[index].longURL %></td>
+            <td><a href=/u/<%= index %>><%= index %></a></td>
+            <td><a href=<%= urls[index].longURL %>><%= urls[index].longURL %></a></td>
             <td><a class="btn btn-outline-primary" href="/urls/<%= index %>">Edit</a></td>
             <td><form method="POST" action="/urls/<%= index %>/delete"><button type="submit" class="btn btn-outline-danger">Delete</button></form></td>
           </tr>

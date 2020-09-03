@@ -34,6 +34,17 @@ app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
 });
 
+app.get("/", (req, res) => {
+  let user = gUsers[req.session.userID];
+  let templateVars = { urls: gURLDatabase, user: user};
+
+  if (user) {
+    res.render("urls_index", templateVars);
+  } else {
+    res.render("login", templateVars);
+  }
+});
+
 app.get("/register", (req, res) => {
   let templateVars = { user: gUsers[req.session.userID]};
   res.render("register", templateVars);
@@ -49,9 +60,18 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let user = gUsers[req.session.userID];
-  let templateVars = { urls: gURLDatabase, user: user};
   
+  const user = gUsers[req.session.userID];
+  
+  const userURLdb = helpers.getUserURLs(user, gURLDatabase);
+  
+  const templateVars = { urls: userURLdb, user: user};
+
+  console.log('GET /urls user:', user);
+  
+
+  console.log('GET /urls userURLdb:', userURLdb);
+
   if (user) {
     res.render("urls_index", templateVars);
   } else {
@@ -80,7 +100,7 @@ app.post("/register", (req, res) => {
   
   //res.cookie('userID', user.id);
   req.session.userID = user.id;
-  res.redirect("/urls"); // need to make this the userID.
+  res.redirect("/urls");
 });
 
 app.post("/urls", (req, res) => {
@@ -89,6 +109,7 @@ app.post("/urls", (req, res) => {
   const longurl = req.body.longURL;
   
   gURLDatabase[urlString] = {longURL: longurl, userID: gUsers[userid].id};
+  console.log('POST /urls gURLDatabase[urlString]:', gURLDatabase[urlString]);
   
   if (userid) {
     res.redirect("/urls");
@@ -143,7 +164,9 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
+  
   const longURL = gURLDatabase[req.params.shortURL];
-  res.redirect(longURL);
+  
+  res.redirect(longURL.longURL);
 });
 
