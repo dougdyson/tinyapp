@@ -3,13 +3,13 @@ const uuid = require('uuid');
 
 function helpers(userDB, urlDB) {
 
-  function generateUserID() {
+  function generateUniqueRandomString() {
     const id = uuid.v4().split('-')[1];
     return id;
   }
 
   function addNewUser(email, password) {
-    const userID = generateUserID();
+    const userID = generateUniqueRandomString();
     const hashedPassword = bcrypt.hashSync(password, 10);
     
     let newUser = {
@@ -80,7 +80,7 @@ function helpers(userDB, urlDB) {
   }
 
   return {
-    generateUserID,
+    generateUniqueRandomString,
     addNewUser,
     emailExists,
     getUserByEmail,

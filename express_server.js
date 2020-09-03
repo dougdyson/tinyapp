@@ -2,10 +2,10 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
-
 const cookieSession = require('cookie-session');
 
 app.set("view engine", "ejs");
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
@@ -27,9 +27,6 @@ let gUsers = {"userRandomID": {
 }};
 
 let gURLDatabase = {};
-
-// seeds for generateRandomString and userID in addNewUser.
-const charArray = ['a', 'A', 'b', 'C', 'd', 'e', 'f', 'g', 'G', 'h', 'I', 'j', 'k', 'K', 'L', 'm', 'n', 'o', 'p', 'Q', 'r', 'R', 'S', 's', 't', 'u', 'v', 'Y', 'z',' Z', '1', '2', '3', '4', '5', '6', '7', '8', '9','10'];
 
 const helpers = require('./helpers')(gUsers, gURLDatabase);
 
@@ -54,8 +51,7 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   let user = gUsers[req.session.userID];
   let templateVars = { urls: gURLDatabase, user: user};
-  console.log("GET /urls req.session.id:", req.session.userID);
-  console.log("GET /urls templateVars:", templateVars);
+  
   if (user) {
     res.render("urls_index", templateVars);
   } else {
@@ -88,16 +84,14 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  // console.log('/urls req.body', req.body);  // Log the POST request body to the // console
-  const urlString = helpers.generateUserID();
+  const urlString = helpers.generateUniqueRandomString();
   const userid = req.session.userID;
-  // console.log('/urls userid', userid);
   const longurl = req.body.longURL;
-  console.log('POST /urls longurl:', longurl);
+  
   gURLDatabase[urlString] = {longURL: longurl, userID: gUsers[userid].id};
-  console.log('POST /urls userid:', userid,'gURLDatabase[urlString]:', gURLDatabase[urlString]);
+  
   if (userid) {
-    res.redirect("/urls");// + urlString);;;
+    res.redirect("/urls");
   } else {
     res.redirect("/error");
   }
@@ -125,9 +119,11 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  console.log('POST /urls/:shortURL req.body.longURL', req.body.longURL);
-  gURLDatabase[req.params.shortURL] = req.body.longURL;
-  console.log('POST /urls/:shorturl gURLDatabase[req.params.shortURL]:', gURLDatabase[req.params.shortURL]);
+  const userid = req.session.userID;
+  gURLDatabase[req.params.shortURL] = {
+    'longURL': req.body.longURL,
+    'userID' : userid
+  }
   res.redirect("/urls");
 });
 
@@ -143,7 +139,6 @@ app.get("/urls/:shortURL", (req, res) => {
     longURL: gURLDatabase[req.params.shortURL], 
     user: gUsers[req.session.userID] 
   };
-  console.log('templateVars:',templateVars);
   res.render("urls_show", templateVars);
 });
 
