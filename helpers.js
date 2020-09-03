@@ -1,19 +1,15 @@
 const bcrypt = require('bcrypt');
+const uuid = require('uuid');
 
 function helpers(userDB, urlDB) {
 
-  const charArray = ['a', 'A', 'b', 'C', 'd', 'e', 'f', 'g', 'G', 'h', 'I', 'j', 'k', 'K', 'L', 'm', 'n', 'o', 'p', 'Q', 'r', 'R', 'S', 's', 't', 'u', 'v', 'Y', 'z',' Z', '1', '2', '3', '4', '5', '6', '7', '8', '9','10'];
-
-  function generateRandomString(length, charArray) {
-    // currently no check for uniqueness!!!
-    let randomString = '';
-    for (let i = 0; i < length; i++) {
-      randomString += charArray[Math.floor(Math.random() * charArray.length)];
-    }
-    return randomString;
+  function generateUserID() {
+    const id = uuid.v4().split('-')[1];
+    return id;
   }
+
   function addNewUser(email, password) {
-    const userID = generateRandomString(6, charArray);
+    const userID = generateUserID();
     const hashedPassword = bcrypt.hashSync(password, 10);
     
     let newUser = {
@@ -84,7 +80,7 @@ function helpers(userDB, urlDB) {
   }
 
   return {
-    generateRandomString,
+    generateUserID,
     addNewUser,
     emailExists,
     getUserByEmail,

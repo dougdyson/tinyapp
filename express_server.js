@@ -25,6 +25,7 @@ let gUsers = {"userRandomID": {
   email: "user2@example.com",
   password: "dishwasher-funk"
 }};
+
 let gURLDatabase = {};
 
 // seeds for generateRandomString and userID in addNewUser.
@@ -53,12 +54,12 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   let user = gUsers[req.session.userID];
   let templateVars = { urls: gURLDatabase, user: user};
-  console.log("/urls req.session.id:", req.session.userID, 'templateVars:', templateVars);
-  // console.log("/urls templateVars:", templateVars);
+  console.log("GET /urls req.session.id:", req.session.userID);
+  console.log("GET /urls templateVars:", templateVars);
   if (user) {
     res.render("urls_index", templateVars);
   } else {
-    res.render("/login", templateVars);
+    res.render("login", templateVars);
   }
 });
 
@@ -88,13 +89,13 @@ app.post("/register", (req, res) => {
 
 app.post("/urls", (req, res) => {
   // console.log('/urls req.body', req.body);  // Log the POST request body to the // console
-  const urlString = helpers.generateRandomString(6, charArray);
+  const urlString = helpers.generateUserID();
   const userid = req.session.userID;
   // console.log('/urls userid', userid);
   const longurl = req.body.longURL;
-  console.log('longurl:', longurl);
+  console.log('POST /urls longurl:', longurl);
   gURLDatabase[urlString] = {longURL: longurl, userID: gUsers[userid].id};
-  console.log('userid:', userid,'gURLDatabase[urlString]:', gURLDatabase[urlString]);
+  console.log('POST /urls userid:', userid,'gURLDatabase[urlString]:', gURLDatabase[urlString]);
   if (userid) {
     res.redirect("/urls");// + urlString);;;
   } else {
@@ -106,8 +107,6 @@ app.post("/login", (req,res) => {
   const email = req.body.email;
   const password = req.body.password;
   
-  // console.log('SOF /login email:', email, 'password:', password);
-
   if (helpers.checkIfUserExists(email, password)) {
     // console.log('/login checkIfUserExists = true');
     const user = helpers.getUserByEmail(email);
@@ -126,8 +125,9 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  console.log('/urls/:shortURL:', req.params.longURL);
+  console.log('POST /urls/:shortURL req.body.longURL', req.body.longURL);
   gURLDatabase[req.params.shortURL] = req.body.longURL;
+  console.log('POST /urls/:shorturl gURLDatabase[req.params.shortURL]:', gURLDatabase[req.params.shortURL]);
   res.redirect("/urls");
 });
 
