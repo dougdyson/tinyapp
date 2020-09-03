@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
+const alert = require("js-alert");
 
 app.set("view engine", "ejs");
 
@@ -81,11 +82,11 @@ app.post("/register", (req, res) => {
   
   //validate email and password are empty!!
   if (!req.body.email || !req.body.password) {
-    throw 400;
+    res.status(400).send('Email and/or password cannot be left blank. Please hit the back button try again!');
   }
   //validate if email already exists
   if (helpers.emailExists(req.body.email)) {
-    throw 400;
+    res.status(400).send('Email address already exists. Please hit the back button try again!');
   }
 
   const user = helpers.addNewUser(req.body.email, req.body.password);
@@ -104,7 +105,7 @@ app.post("/urls", (req, res) => {
   if (userid) {
     res.redirect("/urls");
   } else {
-    res.redirect("/error");
+    res.status(400).send('WHOA! Need to be logged in to do that! Please hit the back button and login!');
   }
 });
 
@@ -117,8 +118,7 @@ app.post("/login", (req,res) => {
     req.session.userID = user.id;
     res.redirect("/urls");
   } else {
-    alert('Your userid or password in incorrect. Please try again');
-    res.redirect("/login");
+    res.status(400).send('Your userid or password in incorrect. Please hit the back button try again!');
   }
 });
 
