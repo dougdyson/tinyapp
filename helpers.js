@@ -26,6 +26,7 @@ function helpers(userDB, urlDB) {
 
     return newUser;
   }
+
   function emailExists(email) {
 
     // console.log('SOF emailExists:', email);
@@ -38,6 +39,7 @@ function helpers(userDB, urlDB) {
     }
     return false;
   }
+
   function getUserByEmail(email) {
     let user = {};
     
@@ -49,6 +51,7 @@ function helpers(userDB, urlDB) {
     }
     return user;
   }
+
   function checkIfUserExists(email, password) {
     //const hashedPassword = bcrypt.hashSync(password, 10);
     if (emailExists(email)) {
@@ -63,6 +66,7 @@ function helpers(userDB, urlDB) {
     }
     return false;
   }
+
   function emailExists(email) {
 
     for (const key in userDB) {
@@ -72,6 +76,13 @@ function helpers(userDB, urlDB) {
     }
     return false;
   }
+
+  function getUserURLs(id, urlDB){
+
+    //urlsForUser(id)
+
+  }
+
   return {
     generateRandomString,
     addNewUser,

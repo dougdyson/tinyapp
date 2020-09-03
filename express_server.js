@@ -92,10 +92,11 @@ app.post("/urls", (req, res) => {
   const userid = req.session.userID;
   // console.log('/urls userid', userid);
   const longurl = req.body.longURL;
+  console.log('longurl:', longurl);
   gURLDatabase[urlString] = {longURL: longurl, userID: gUsers[userid].id};
-  console.log('userid:', userid,'gURLDatabase[urlString]', gURLDatabase[urlString]);
+  console.log('userid:', userid,'gURLDatabase[urlString]:', gURLDatabase[urlString]);
   if (userid) {
-    res.redirect("/urls");// + urlString);
+    res.redirect("/urls");// + urlString);;;
   } else {
     res.redirect("/error");
   }
@@ -125,7 +126,7 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  // // console.log('Update! ' + req.params.longURL);
+  console.log('/urls/:shortURL:', req.params.longURL);
   gURLDatabase[req.params.shortURL] = req.body.longURL;
   res.redirect("/urls");
 });
@@ -137,7 +138,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: gURLDatabase[req.params.shortURL], user: gUsers[req.session.userID] };
+  let templateVars = { 
+    shortURL: req.params.shortURL, 
+    longURL: gURLDatabase[req.params.shortURL], 
+    user: gUsers[req.session.userID] 
+  };
+  console.log('templateVars:',templateVars);
   res.render("urls_show", templateVars);
 });
 
