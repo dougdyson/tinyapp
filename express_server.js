@@ -39,8 +39,8 @@ app.listen(PORT, () => {
 });
 
 app.get("/", (req, res) => {
-  let user = gUsers[req.session.userID];
-  let templateVars = { urls: gURLDatabase, user: user};
+  const user = gUsers[req.session.userID];
+  const templateVars = { urls: gURLDatabase, user: user};
 
   if (user) {
     res.render("urls_index", templateVars);
@@ -50,16 +50,18 @@ app.get("/", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  let templateVars = { user: gUsers[req.session.userID]};
+  const templateVars = { user: gUsers[req.session.userID]};
   res.render("register", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   const user = gUsers[req.session.userID]
-  const templateVars = { user };
   if (!user) {
     res.status(400).send(notLoggedInErrMessage);
   }
+  
+  const templateVars = { user };
+  
   res.render("urls_new", templateVars);
 });
 
