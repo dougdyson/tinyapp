@@ -14,11 +14,21 @@ const testUsers = {
     password: "dishwasher-funk"
   }
 };
+
 const {getUserByEmail} = helpers(testUsers);
 describe('getUserByEmail', function() {
   it('should not return not a user with an invalid email', function() {
     const user = getUserByEmail("user@example.com")
     const expectedOutput = "userRandomID";
-    assert.notEqual(user, "user2RandomID", true);
+    assert.notEqual(user, expectedOutput, true);
+  });
+});
+
+const {emailExists} = helpers(testUsers);
+describe('emailExists', function() {
+  it('should return false if a user has an invalid email', function() {
+    const email = emailExists("user@example.com")
+    const expectedOutput = false;
+    assert.notEqual(email, expectedOutput, true);
   });
 });
