@@ -6,7 +6,6 @@ const cookieSession = require('cookie-session');
 
 const notLoggedInErrMessage = 'You need to be logged in for that. Please login and try again!';
 
-
 app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -49,8 +48,15 @@ app.get("/", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = { user: gUsers[req.session.userID]};
-  res.render("register", templateVars);
+  const userID = gUsers[req.session.userID]
+  const user = gUsers[userID];
+  const templateVars = { urls: gURLDatabase, user: user};
+
+  if (userID){
+    res.render("urls_index", templateVars);
+  } else {
+    res.render("register", templateVars);
+  }
 });
 
 app.get("/urls/new", (req, res) => {
@@ -106,13 +112,9 @@ app.post("/register", (req, res) => {
     return res.status(400).send('Email address already exists. Please hit the back button and try again!');
   }
   
-  //if ((req.body.email !== '') && (req.body.email !== '')) {
-    const newUser = helpers.addNewUser(req.body.email, req.body.password);
-    console.log('SERVER POST /register newUser:', newUser);
-    console.log('SERVER POST /register newUser.id:', newUser.id);
-    gUsers[newUser.id] = newUser;
-    req.session.userID = newUser.id;
-  //}
+  const newUser = helpers.addNewUser(req.body.email, req.body.password);
+  gUsers[newUser.id] = newUser;
+  req.session.userID = newUser.id;
   
   res.redirect("/urls");
 });
