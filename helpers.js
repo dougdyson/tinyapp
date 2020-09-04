@@ -25,16 +25,11 @@ function helpers(userDB, urlDB) {
 
   function emailExists(email) {
 
-    console.log('HELPERS emailExists userDB[key].email:', userDB[key].email);
-    console.log('HELPERS emailExists email:', email);
-
     for (const key in userDB) {
       if (userDB[key].email === email) {
-        console.log('HELPERS emailExists userDB[key].email === email: TRUE');
         return true;
       }
     }
-    console.log('HELPERS emailExists userDB[key].email === email: FALSE');
     return false;
   }
 
