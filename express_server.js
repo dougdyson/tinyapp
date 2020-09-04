@@ -72,7 +72,8 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   
-  const user = gUsers[req.session.userID];
+  const userID = req.session.userID;
+  const user = gUsers[userID];
   const userURLdb = helpers.getUserURLs(user, gURLDatabase);
   const templateVars = { urls: userURLdb, user: user};
 
@@ -114,21 +115,21 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const urlString = helpers.generateUniqueRandomString();
-  const userid = req.session.userID;
-  const longurl = req.body.longURL;
-
-  if (longurl === '') {
+  
+  const userID = req.session.userID;
+  if (!userID) {
+    return res.status(400).send(notLoggedInErrMessage);
+  }
+  const longURL = req.body.longURL;
+  if (longURL === '') {
     return res.status(400).send('WHOA! URL cannot be blank. Hit the back button and enter a URL.');
   }
   
-  gURLDatabase[urlString] = {longURL: longurl, userID: gUsers[userid].id};
+  const shortURL = helpers.generateUniqueRandomString();
   
-  if (userid) {
-    res.redirect("/urls");
-  } else {
-    return res.status(400).send(notLoggedInErrMessage);
-  }
+  gURLDatabase[shortURL] = {longURL, userID};
+
+  res.redirect("/urls/" + shortURL);
 });
 
 app.post("/login", (req,res) => {
@@ -155,35 +156,92 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  const userid = req.session.userID;
-  if (userid) {
-    gURLDatabase[req.params.shortURL] = {
-      'longURL': req.body.longURL,
-      'userID' : userid
-    }
+  
+  const shortURL = req.params.shortURL;
+  if (!shortURL){
+    return res.status(400).send('Invalid url code');
   }
+
+  const record = gURLDatabase[shortURL];
+  if (!record){
+    return res.status(400).send('Invalid record');
+  }
+  
+  const userID = req.session.userID;
+  if (!userID) {
+    return res.status(400).send(notLoggedInErrMessage);
+  }
+
+  if (record.userID !== userID){
+    return res.status(400).send('Invalid access');
+  }
+  
+  const longURL = req.body.longURL;
+  if (!longURL){
+    return res.status(400).send('No url found!');
+  }
+
+  record.longURL = longURL
+  
   res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const userid = req.session.userID;
   
-  if (userid) {
-    delete gURLDatabase[req.params.shortURL];
+  const userID = req.session.userID;
+  if (!userID){
+    return res.status(400).send('Invalid user');
   }
+
+  const shortURL = req.params.shortURL;
+  if (!shortURL) {
+    return res.status(400).send('Invalid short URL.');
+  }
+
+  const record = gURLDatabase[shortURL];
+  if (!record){
+    return res.status(400).send('Unable to delete. No url found.');
+  }
+
+  console.log('SERVER post /urls/:shortURL/delete record:', record);
+  console.log('SERVER post /urls/:shortURL/delete record.userID:', record.userID);
+  console.log('SERVER post /urls/:shortURL/delete userID:', userID);
+  if (record.userID !== userID){
+    return res.status(400).send('Invalid access');
+  }
+  
+  delete gURLDatabase[shortURL];
 
   res.redirect("/urls");
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { 
-    shortURL: req.params.shortURL, 
-    longURL: gURLDatabase[req.params.shortURL], 
-    user: gUsers[req.session.userID] 
-  };
-  if (!user) {
-    res.status(400).send(notLoggedInErrMessage);
+  const fileDoesNotExistMsg = 'WHOOPS! There is no URL with that code. Please try again!'
+  
+  const userID = req.session.userID;
+  if (!userID){
+    return res.redirect("/urls");
   }
+
+  const shortURL = req.params.shortURL;
+  if (!shortURL) {
+    return res.status(400).send('WHOOPS! There is no URL with that code. Please try again!');
+  }
+
+  const record = gURLDatabase[shortURL];
+  if (!record){
+    return res.status(400).send('WHOOPS! There is no URL with that code. Please try again!');
+  }
+
+  const user = gUsers[req.session.userID];
+  if (record.userID !== user.id){
+    return res.status(400).send('Invalid access');
+  }
+
+  const longURL = record.longURL;
+
+  let templateVars = { shortURL, longURL, user };
+
   res.render("urls_show", templateVars);
 });
 

@@ -66,7 +66,7 @@ function helpers(userDB, urlDB) {
     return false;
   }
 
-  function getUserURLs(user, urlDB){
+  function getURLSforUser(user, urlDB){
 
     if (!user) {
       return {};
@@ -75,13 +75,40 @@ function helpers(userDB, urlDB) {
     let userURLdb = {};
     const userID = user.id;
 
-    for (const key in urlDB) {      
-      if (urlDB[key].userID === userID) {
-        userURLdb[key] = {longURL: urlDB[key].longURL, userID: userID};
+    for (const shortURL in urlDB) {      
+      if (urlDB[shortURL].userID === userID) {
+        userURLdb[shortURL] = {longURL: urlDB[shortURL].longURL, userID: userID};
       }
     }
     
     return userURLdb;
+  }
+
+  function checkIfURLOwnedByUser (userid, key, urlDB){
+
+    console.log('HELPER urlDB:',);
+
+    const record = urlDB[key];
+
+    console.log('HELPER record:', record);
+
+    if (!record){
+      return false;
+    }
+
+    console.log('HELPERS checkIfURLOwnedByUser userID:', userid);
+    console.log('HELPERS checkIfURLOwnedByUser key:', key);
+    console.log('HELPERS checkIfURLOwnedByUser urlDB:', urlDB);
+    console.log('HELPERS checkifURLOwnedByUser urlDB[key].userID:', urlDB[key].userID);
+
+    if(urlDB[key].userID === userid){
+      console.log('HELPERS checkifURLOwnedByUser MATCH === true');
+      console.log('============================================');
+      return true;
+    } 
+    console.log('HELPERS checkifURLOwnedByUser MATCH === false');
+    console.log('============================================');
+    return false;
   }
 
   return {
@@ -90,7 +117,8 @@ function helpers(userDB, urlDB) {
     emailExists,
     getUserByEmail,
     checkIfUserExists,
-    getUserURLs
+    getUserURLs: getURLSforUser,
+    checkIfURLOwnedByUser
   };
 }
 
