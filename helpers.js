@@ -25,11 +25,16 @@ function helpers(userDB, urlDB) {
 
   function emailExists(email) {
 
+    console.log('HELPERS emailExists userDB[key].email:', userDB[key].email);
+    console.log('HELPERS emailExists email:', email);
+
     for (const key in userDB) {
       if (userDB[key].email === email) {
+        console.log('HELPERS emailExists userDB[key].email === email: TRUE');
         return true;
       }
     }
+    console.log('HELPERS emailExists userDB[key].email === email: FALSE');
     return false;
   }
 
@@ -84,41 +89,13 @@ function helpers(userDB, urlDB) {
     return userURLdb;
   }
 
-  function checkIfURLOwnedByUser (userid, key, urlDB){
-
-    console.log('HELPER urlDB:',);
-
-    const record = urlDB[key];
-
-    console.log('HELPER record:', record);
-
-    if (!record){
-      return false;
-    }
-
-    console.log('HELPERS checkIfURLOwnedByUser userID:', userid);
-    console.log('HELPERS checkIfURLOwnedByUser key:', key);
-    console.log('HELPERS checkIfURLOwnedByUser urlDB:', urlDB);
-    console.log('HELPERS checkifURLOwnedByUser urlDB[key].userID:', urlDB[key].userID);
-
-    if(urlDB[key].userID === userid){
-      console.log('HELPERS checkifURLOwnedByUser MATCH === true');
-      console.log('============================================');
-      return true;
-    } 
-    console.log('HELPERS checkifURLOwnedByUser MATCH === false');
-    console.log('============================================');
-    return false;
-  }
-
   return {
     generateUniqueRandomString,
     addNewUser,
     emailExists,
     getUserByEmail,
     checkIfUserExists,
-    getUserURLs: getURLSforUser,
-    checkIfURLOwnedByUser
+    getURLSforUser,
   };
 }
 

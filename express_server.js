@@ -3,7 +3,6 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
-const alert = require("js-alert");
 
 const notLoggedInErrMessage = 'You need to be logged in for that. Please login and try again!';
 
@@ -76,7 +75,7 @@ app.get("/urls", (req, res) => {
   
   const userID = req.session.userID;
   const user = gUsers[userID];
-  const userURLdb = helpers.getUserURLs(user, gURLDatabase);
+  const userURLdb = helpers.getURLSforUser(user, gURLDatabase);
   const templateVars = { urls: userURLdb, user: user};
 
   if (user) {
@@ -91,15 +90,14 @@ app.get("/login", (req, res) => {
   const templateVars = { urls: gURLDatabase, user};
 
   if (user) {
-    return res.redirect("/urls");
+    return res.redirect("/urls", templateVars);
   }
-
   res.render("login", templateVars);
 });
 
 app.post("/register", (req, res) => {
   
-  //validate email and password are empty!!
+  //validate email and password are empty
   if (!req.body.email || !req.body.password) {
     return res.status(400).send('Email and/or password cannot be left blank. Please hit the back button and try again!');
   }
@@ -108,10 +106,13 @@ app.post("/register", (req, res) => {
     return res.status(400).send('Email address already exists. Please hit the back button and try again!');
   }
   
-  if ((req.body.email !== '') && (req.body.email !== '')) {
-    const user = helpers.addNewUser(req.body.email, req.body.password);
-    req.session.userID = user.id;
-  }
+  //if ((req.body.email !== '') && (req.body.email !== '')) {
+    const newUser = helpers.addNewUser(req.body.email, req.body.password);
+    console.log('SERVER POST /register newUser:', newUser);
+    console.log('SERVER POST /register newUser.id:', newUser.id);
+    gUsers[newUser.id] = newUser;
+    req.session.userID = newUser.id;
+  //}
   
   res.redirect("/urls");
 });
@@ -205,9 +206,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     return res.status(400).send('Unable to delete. No url found.');
   }
 
-  console.log('SERVER post /urls/:shortURL/delete record:', record);
-  console.log('SERVER post /urls/:shortURL/delete record.userID:', record.userID);
-  console.log('SERVER post /urls/:shortURL/delete userID:', userID);
   if (record.userID !== userID){
     return res.status(400).send('Invalid access');
   }
