@@ -4,6 +4,19 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 
+let gUsers = {"userRandomID": {
+  id: "userRandomID",
+  email: "user@example.com",
+  password: "purple-monkey-dinosaur"
+},
+"user2RandomID": {
+  id: "user2RandomID",
+  email: "user2@example.com",
+  password: "dishwasher-funk"
+}};
+let gURLDatabase = {};
+const helpers = require('./helpers')(gUsers, gURLDatabase);
+
 app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -15,36 +28,19 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
-let gUsers = {"userRandomID": {
-  id: "userRandomID",
-  email: "user@example.com",
-  password: "purple-monkey-dinosaur"
-},
-"user2RandomID": {
-  id: "user2RandomID",
-  email: "user2@example.com",
-  password: "dishwasher-funk"
-}};
-
-let gURLDatabase = {};
-
-const helpers = require('./helpers')(gUsers, gURLDatabase);
-
-app.listen(PORT, () => {
-  const serverStartTimestamp = new Date;
-  const serverStartedTime = helpers.formatTimestamp(serverStartTimestamp);
-  console.log('TinyApp server started at ' + serverStartedTime);
-  console.log(`TinyApp listening on port ${PORT}!`);
-});
-
 app.get("/login", (req, res) => {
+
   const userID = req.session.userID;
   const user = gUsers[userID];
   const urls = helpers.getURLSforUser(user, gURLDatabase);
   const templateVars = { urls, user };
 
+  // MENTOR QUESTION: bug where if the very first the user submits is blank login creds, 
+  // get a 'Cannot /POST'
+  // Been trying capture where this happening. Works as expected if other actions done prior
+  // ===========================================================
   if (user) {
-    res.render("urls_index", templateVars);
+    res.redirect("/urls");
   } else {
     res.render("login", templateVars);
   }
@@ -52,29 +48,22 @@ app.get("/login", (req, res) => {
 
 app.get("/", (req, res) => {
   const userID = req.session.userID;
-  const user = gUsers[userID];
-  const urls = helpers.getURLSforUser(user, gURLDatabase);
-  const templateVars = { urls, user};
-
-  if (user) {
-    res.render("urls_index", templateVars);
+  
+  if (userID) {
+    res.redirect("/urls");
   } else {
-    res.render("login", templateVars);
+    res.redirect("/login");
   }
 });
 
 app.get("/register", (req, res) => {
-  
+
   const userID = req.session.userID;
   const user = gUsers[userID];
-  const urls = helpers.getURLSforUser(user, gURLDatabase);
-  const templateVars = { urls, user};
+  const templateVars = { user };
 
-  // MENTOR QUESTION: rendering vs redirecting to route
-  // Below code renders HTML but the browser URL does not change accordingly
-  // WHen I attempt redirecting, app hangs
-  if (userID) {
-    res.render("urls_index", templateVars);
+  if (user) {
+    res.redirect("/urls");
   } else {
     res.render("register", templateVars);
   }
@@ -82,11 +71,12 @@ app.get("/register", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
 
-  const user = gUsers[req.session.userID];
-  if (!user) {
+  const userID = req.session.userID;
+  if (!userID) {
     res.status(400).send('Requires login.');
   }
-  
+
+  const user = gUsers[userID];
   const templateVars = { user };
   
   res.render("urls_new", templateVars);
@@ -109,7 +99,7 @@ app.get("/urls", (req, res) => {
   if (user) {
     res.render("urls_index", templateVars);
   } else {
-    res.render("login", templateVars);
+    return res.status(400).send('Requires login.');
   }
 });
 
@@ -157,11 +147,11 @@ app.post("/urls", (req, res) => {
   
   const userID = req.session.userID;
   if (!userID) {
-    return res.status(400).send('Requires login.');
+    return res.status(400).send('Requires login');
   }
   const longURL = req.body.longURL;
   if (longURL === '') {
-    return res.status(400).send('WHOA! URL cannot be blank.');
+    return res.status(400).send('WHOA! URL cannot be blank');
   }
   
   const shortURL = helpers.generateUniqueRandomString();
@@ -190,7 +180,7 @@ app.post("/urls/:shortURL", (req, res) => {
   
   const userID = req.session.userID;
   if (!userID) {
-    return res.status(400).send('Requires login.');
+    return res.status(400).send('Requires login');
   }
 
   if (record.userID !== userID) {
@@ -212,12 +202,10 @@ app.get("/urls/:shortURL/delete", (req, res) => {
   const user = gUsers[userID];
   const shortURL = req.params.shortURL;
   const urls = helpers.getURLSforUser(user, gURLDatabase);
+  const urlRecord = urls[shortURL];
   const templateVars = { urls, user };
 
-  console.log('SERVER GET /urls/:shortURL/delete user:', user);
   
-  const urlRecord = urls[shortURL];
-  console.log('SERVER GET /urls/:shortURL/delete urlRecord:', urlRecord);
   if (helpers.checkUserIsURLOwner(user, urlRecord)) {
     res.render("urls_index", templateVars);
   } else {
@@ -292,5 +280,12 @@ app.get("/u/:shortURL", (req, res) => {
     return res.status(400).send('OH NO! TinyApp URL not found for ' + externalURL);
   }
   
+});
+
+app.listen(PORT, () => {
+  const serverStartTimestamp = new Date;
+  const serverStartedTime = helpers.formatTimestamp(serverStartTimestamp);
+  console.log('TinyApp server started at ' + serverStartedTime);
+  console.log(`TinyApp listening on port ${PORT}!`);
 });
 

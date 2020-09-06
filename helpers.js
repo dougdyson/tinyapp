@@ -97,9 +97,9 @@ function helpers(userDB, urlDB) {
     const date = ("0" + timestamp.getDate()).slice(-2);
     const month = ("0" + (timestamp.getMonth() + 1)).slice(-2);
     const year = timestamp.getFullYear();
-    const hours = timestamp.getHours();
-    const minutes = timestamp.getMinutes();
-    const seconds = timestamp.getSeconds();
+    const hours = ("0" + (timestamp.getHours() + 1)).slice(-2);
+    const minutes = ("0" + (timestamp.getMinutes() + 1)).slice(-2);
+    const seconds = ("0" + (timestamp.getSeconds() + 1)).slice(-2);
 
     const formattedTimestamp = year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
 
