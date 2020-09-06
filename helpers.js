@@ -47,7 +47,7 @@ function helpers(userDB, urlDB) {
   function checkIfUserExists(email, password) {
     
     if (checkEmailExists(email)) {
-      let user = getUserByEmail(email);
+      const user = getUserByEmail(email);
       const hashedPassword = user.password;
       if (bcrypt.compareSync(password, hashedPassword)) {
         return true;
