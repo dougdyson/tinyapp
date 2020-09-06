@@ -37,18 +37,25 @@ app.listen(PORT, () => {
 });
 
 app.get("/login", (req, res) => {
-  const user = gUsers[req.session.userID];
-  const templateVars = { urls: gURLDatabase, user};
+  const userID = req.session.userID;
+  const user = gUsers[userID];
+  const urls = helpers.getURLSforUser(user, gURLDatabase);
+  const templateVars = { urls, user};
+
+  console.log('SERVER GET /login user:', user);
 
   if (user) {
-    return res.redirect("/urls", templateVars);
+    res.render("urls_index", templateVars);
+  } else {
+    res.render("login", templateVars);
   }
-  res.render("login", templateVars);
 });
 
 app.get("/", (req, res) => {
-  const user = gUsers[req.session.userID];
-  const templateVars = { urls: gURLDatabase, user: user};
+  const userID = req.session.userID;
+  const user = gUsers[userID];
+  const urls = helpers.getURLSforUser(user, gURLDatabase);
+  const templateVars = { urls, user};
 
   if (user) {
     res.render("urls_index", templateVars);
@@ -58,11 +65,13 @@ app.get("/", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const userID = gUsers[req.session.userID]
+  
+  const userID = req.session.userID;
   const user = gUsers[userID];
-  const templateVars = { urls: gURLDatabase, user: user};
+  const urls = helpers.getURLSforUser(user, gURLDatabase);
+  const templateVars = { urls, user};
 
-  if (userID){
+  if (userID) {
     res.render("urls_index", templateVars);
   } else {
     res.render("register", templateVars);
@@ -70,6 +79,7 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+
   const user = gUsers[req.session.userID]
   if (!user) {
     res.status(400).send(notLoggedInErrMessage);
@@ -91,8 +101,8 @@ app.get("/urls", (req, res) => {
   
   const userID = req.session.userID;
   const user = gUsers[userID];
-  const userURLdb = helpers.getURLSforUser(user, gURLDatabase);
-  const templateVars = { urls: userURLdb, user: user};
+  const urls = helpers.getURLSforUser(user, gURLDatabase);
+  const templateVars = { urls, user };
 
   if (user) {
     res.render("urls_index", templateVars);
@@ -111,15 +121,36 @@ app.post("/register", (req, res) => {
     return res.status(400).send('Email and/or password cannot be left blank.');
   }
   //validate if email already exists
-  if (helpers.emailExists(req.body.email)) {
+  if (helpers.emailExists(email)) {
     return res.status(400).send('Email address already exists.');
   }
   
-  const newUser = helpers.addNewUser(req.body.email, req.body.password);
+  const newUser = helpers.addNewUser(email, password);
   gUsers[newUser.id] = newUser;
   req.session.userID = newUser.id;
   
   res.redirect("/urls");
+});
+
+app.post("/login", (req,res) => {
+  
+  const email = req.body.email;
+  const password = req.body.password;
+
+  console.log('SERVER POST /login email:', email, 'password:', password);
+
+  //validate email and password are not empty
+  if (!email || !password) {
+    return res.status(400).send('Email and/or password cannot be left blank.');
+  }
+  
+  if (helpers.checkIfUserExists(email, password)) {
+    const user = helpers.getUserByEmail(email);
+    req.session.userID = user.id;
+    res.redirect("/urls");  
+  } else {
+    return res.status(400).send('Trouble logging in. Please try again or register for an account if you do not have one yet!');
+  }
 });
 
 app.post("/urls", (req, res) => {
@@ -138,24 +169,6 @@ app.post("/urls", (req, res) => {
   gURLDatabase[shortURL] = {longURL, userID};
 
   res.redirect("/urls/" + shortURL);
-});
-
-app.post("/login", (req,res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-
-  //validate email and password are not empty
-  if (!email || !password) {
-    return res.status(400).send('Email and/or password cannot be left blank.');
-  }
-  
-  if (helpers.checkIfUserExists(email, password)) {
-    const user = helpers.getUserByEmail(email);
-    req.session.userID = user.id;
-    res.redirect("/urls");  
-  } else {
-    return res.status(400).send('Trouble logging in. Please try again or register for an account if you do not have one yet!');
-  }
 });
 
 app.post("/logout", (req, res) => {
@@ -194,6 +207,20 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect("/urls");
 });
 
+app.get("/urls/:shortURL/delete", (req, res) => {
+  const userID = req.session.userID;
+  const user = gUsers[userID];
+  const urls = helpers.getURLSforUser(user, gURLDatabase);
+  const templateVars = { urls, user };
+
+  if (user) {
+    res.render("urls_index", templateVars);
+  } else {
+    return res.status(400).send('Invalid user');
+  }
+
+});
+
 app.post("/urls/:shortURL/delete", (req, res) => {
   
   const userID = req.session.userID;
@@ -215,13 +242,15 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     return res.status(400).send('Invalid access');
   }
   
+  console.log('SERVER POST delete gURLDatabase[shortURL]:', gURLDatabase[shortURL]);
+
   delete gURLDatabase[shortURL];
 
   res.redirect("/urls");
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const fileDoesNotExistMsg = 'WHOOPS! There is no URL with that code. Please try again!'
+  const urlDoesNotExistMsg = 'WHOOPS! There is no URL with that code. Please try again!'
   
   const userID = req.session.userID;
   if (!userID){
@@ -230,12 +259,12 @@ app.get("/urls/:shortURL", (req, res) => {
 
   const shortURL = req.params.shortURL;
   if (!shortURL) {
-    return res.status(400).send(fileDoesNotExistMsg);
+    return res.status(400).send(urlDoesNotExistMsg);
   }
 
   const record = gURLDatabase[shortURL];
   if (!record){
-    return res.status(400).send(fileDoesNotExistMsg);
+    return res.status(400).send(urlDoesNotExistMsg);
   }
 
   const user = gUsers[req.session.userID];
@@ -245,14 +274,15 @@ app.get("/urls/:shortURL", (req, res) => {
 
   const longURL = record.longURL;
 
-  let templateVars = { shortURL, longURL, user };
+  const templateVars = { shortURL, longURL, user };
 
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
   
-  const externalURL = gURLDatabase[req.params.shortURL];
+  const urlRecord = gURLDatabase[req.params.shortURL];
+  const externalURL = urlRecord;
 
   if (externalURL) {
     res.redirect(externalURL.longURL);
