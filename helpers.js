@@ -56,17 +56,7 @@ function helpers(userDB, urlDB) {
     return false;
   }
 
-  function checkEmailExists(email) {
-
-    for (const key in userDB) {
-      if (userDB[key].email === email) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function getURLSforUser(user, urlDB) {
+  function getURLSforUser(user) {
 
     if (!user) {
       return {};
@@ -75,7 +65,7 @@ function helpers(userDB, urlDB) {
     let userURLdb = {};
     const userID = user.id;
 
-    for (const shortURL in urlDB) {      
+    for (const shortURL in urlDB) {
       if (urlDB[shortURL].userID === userID) {
         userURLdb[shortURL] = {longURL: urlDB[shortURL].longURL, userID: userID};
       }
@@ -84,7 +74,7 @@ function helpers(userDB, urlDB) {
     return userURLdb;
   }
 
-  function checkUserIsURLOwner (user, urlRecord) {
+  function checkUserIsURLOwner(user, urlRecord) {
 
     const urlUser = user;
     if (!urlUser) {

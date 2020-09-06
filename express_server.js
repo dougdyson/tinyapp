@@ -76,7 +76,7 @@ app.get("/register", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
 
-  const user = gUsers[req.session.userID]
+  const user = gUsers[req.session.userID];
   if (!user) {
     res.status(400).send('Requires login.');
   }
@@ -141,7 +141,7 @@ app.post("/login", (req,res) => {
   if (helpers.checkIfUserExists(email, password)) {
     const user = helpers.getUserByEmail(email);
     req.session.userID = user.id;
-    res.redirect("/urls");  
+    res.redirect("/urls");
   } else {
     return res.status(400).send('Trouble logging in. Please try again or register for an account if you do not have one yet!');
   }
@@ -173,12 +173,12 @@ app.post("/logout", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   
   const shortURL = req.params.shortURL;
-  if (!shortURL){
+  if (!shortURL) {
     return res.status(400).send('Invalid url code');
   }
 
   const record = gURLDatabase[shortURL];
-  if (!record){
+  if (!record) {
     return res.status(400).send('Invalid record');
   }
   
@@ -187,16 +187,16 @@ app.post("/urls/:shortURL", (req, res) => {
     return res.status(400).send('Requires login.');
   }
 
-  if (record.userID !== userID){
+  if (record.userID !== userID) {
     return res.status(400).send('Invalid access');
   }
   
   const longURL = req.body.longURL;
-  if (!longURL){
+  if (!longURL) {
     return res.status(400).send('No url found!');
   }
 
-  record.longURL = longURL
+  record.longURL = longURL;
   
   res.redirect("/urls");
 });
@@ -223,7 +223,7 @@ app.get("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   
   const userID = req.session.userID;
-  if (!userID){
+  if (!userID) {
     return res.status(400).send('Invalid user');
   }
 
@@ -237,7 +237,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     return res.status(400).send('No url found');
   }
 
-  if (record.userID !== userID){
+  if (record.userID !== userID) {
     return res.status(400).send('Invalid access');
   }
 
@@ -249,7 +249,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   
   const userID = req.session.userID;
-  if (!userID){
+  if (!userID) {
     return res.redirect("/urls");
   }
 
@@ -259,12 +259,12 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 
   const record = gURLDatabase[shortURL];
-  if (!record){
+  if (!record) {
     return res.status(400).send('Invalid short URL');
   }
 
   const user = gUsers[req.session.userID];
-  if (record.userID !== user.id){
+  if (record.userID !== user.id) {
     return res.status(400).send('Invalid access');
   }
 
