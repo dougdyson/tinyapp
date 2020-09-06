@@ -4,6 +4,7 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 
+// GLOBAL VARIABLES and HELPERS REQUIRE
 let gUsers = {"userRandomID": {
   id: "userRandomID",
   email: "user@example.com",
