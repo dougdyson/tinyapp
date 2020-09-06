@@ -31,6 +31,15 @@ let gURLDatabase = {};
 const helpers = require('./helpers')(gUsers, gURLDatabase);
 
 app.listen(PORT, () => {
+  const serverStartTimestamp = new Date;
+  const date = ("0" + serverStartTimestamp.getDate()).slice(-2);
+  const month = ("0" + (serverStartTimestamp.getMonth() + 1)).slice(-2);
+  const year = serverStartTimestamp.getFullYear();
+  const hours = serverStartTimestamp.getHours();
+  const minutes = serverStartTimestamp.getMinutes();
+  const seconds = serverStartTimestamp.getSeconds();
+  const serverStartedAt = year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
+  console.log('TinyApp server started at ' + serverStartedAt);
   console.log(`TinyApp listening on port ${PORT}!`);
 });
 
@@ -38,7 +47,7 @@ app.get("/login", (req, res) => {
   const userID = req.session.userID;
   const user = gUsers[userID];
   const urls = helpers.getURLSforUser(user, gURLDatabase);
-  const templateVars = { urls, user};
+  const templateVars = { urls, user };
 
   if (user) {
     res.render("urls_index", templateVars);
@@ -67,6 +76,9 @@ app.get("/register", (req, res) => {
   const urls = helpers.getURLSforUser(user, gURLDatabase);
   const templateVars = { urls, user};
 
+  // MENTOR QUESTION: rendering vs redirecting to route
+  // Below code renders HTML but the browser URL does not change accordingly
+  // WHen I attempt redirecting, app hangs
   if (userID) {
     res.render("urls_index", templateVars);
   } else {
