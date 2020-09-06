@@ -36,6 +36,16 @@ app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
 });
 
+app.get("/login", (req, res) => {
+  const user = gUsers[req.session.userID];
+  const templateVars = { urls: gURLDatabase, user};
+
+  if (user) {
+    return res.redirect("/urls", templateVars);
+  }
+  res.render("login", templateVars);
+});
+
 app.get("/", (req, res) => {
   const user = gUsers[req.session.userID];
   const templateVars = { urls: gURLDatabase, user: user};
@@ -91,20 +101,13 @@ app.get("/urls", (req, res) => {
   }
 });
 
-app.get("/login", (req, res) => {
-  const user = gUsers[req.session.userID];
-  const templateVars = { urls: gURLDatabase, user};
-
-  if (user) {
-    return res.redirect("/urls", templateVars);
-  }
-  res.render("login", templateVars);
-});
-
 app.post("/register", (req, res) => {
+
+  const email = req.body.email;
+  const password = req.body.password;
   
   //validate email and password are empty
-  if (!req.body.email || !req.body.password) {
+  if (!email || !password) {
     return res.status(400).send('Email and/or password cannot be left blank. Please hit the back button and try again!');
   }
   //validate if email already exists
@@ -141,8 +144,10 @@ app.post("/login", (req,res) => {
   const email = req.body.email;
   const password = req.body.password;
 
+  console.log('SERVER POST /urls email:', email, 'password:', password);
+
   //validate email and password are empty!!
-  if (!req.body.email || !req.body.password) {
+  if (!email || !password) {
     return res.status(400).send('Email and/or password cannot be left blank. Please hit the back button and try again!');
   }
   

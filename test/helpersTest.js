@@ -32,3 +32,13 @@ describe('emailExists', function() {
     assert.notEqual(email, expectedOutput, true);
   });
 });
+
+const {checkIfUserExists} = helpers(testUsers);
+describe('checkIfUserExists', function() {
+  it('should return false if a user does not exist', function() {
+    const userExists = checkIfUserExists("user@example.com", "purple-monkey-dinosaur");
+    console.log(userExists);
+    const expectedOutput = false;
+    assert.notEqual(userExists, expectedOutput, true);
+  });
+});
