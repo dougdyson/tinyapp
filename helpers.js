@@ -93,6 +93,19 @@ function helpers(userDB, urlDB) {
     return false;
   }
 
+  function formatTimestamp (timestamp){
+    const date = ("0" + timestamp.getDate()).slice(-2);
+    const month = ("0" + (timestamp.getMonth() + 1)).slice(-2);
+    const year = timestamp.getFullYear();
+    const hours = timestamp.getHours();
+    const minutes = timestamp.getMinutes();
+    const seconds = timestamp.getSeconds();
+
+    const formattedTimestamp = year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
+
+    return formattedTimestamp;
+  }
+
   return {
     generateUniqueRandomString,
     addNewUser,
@@ -100,7 +113,8 @@ function helpers(userDB, urlDB) {
     getUserByEmail,
     checkIfUserExists,
     getURLSforUser,
-    checkUserIsURLOwner
+    checkUserIsURLOwner,
+    formatTimestamp
   };
 }
 

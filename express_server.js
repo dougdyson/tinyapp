@@ -32,14 +32,8 @@ const helpers = require('./helpers')(gUsers, gURLDatabase);
 
 app.listen(PORT, () => {
   const serverStartTimestamp = new Date;
-  const date = ("0" + serverStartTimestamp.getDate()).slice(-2);
-  const month = ("0" + (serverStartTimestamp.getMonth() + 1)).slice(-2);
-  const year = serverStartTimestamp.getFullYear();
-  const hours = serverStartTimestamp.getHours();
-  const minutes = serverStartTimestamp.getMinutes();
-  const seconds = serverStartTimestamp.getSeconds();
-  const serverStartedAt = year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
-  console.log('TinyApp server started at ' + serverStartedAt);
+  const serverStartedTime = helpers.formatTimestamp(serverStartTimestamp);
+  console.log('TinyApp server started at ' + serverStartedTime);
   console.log(`TinyApp listening on port ${PORT}!`);
 });
 
