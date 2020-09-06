@@ -83,7 +83,7 @@ function helpers(userDB, urlDB) {
     return false;
   }
 
-  function formatTimestamp (timestamp){
+  function formatTimestamp (timestamp) {
     const date = ("0" + timestamp.getDate()).slice(-2);
     const month = ("0" + (timestamp.getMonth() + 1)).slice(-2);
     const year = timestamp.getFullYear();
