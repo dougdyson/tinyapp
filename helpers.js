@@ -76,16 +76,6 @@ function helpers(userDB, urlDB) {
 
   function checkUserIsURLOwner(user, urlRecord) {
 
-    const urlUser = user;
-    if (!urlUser) {
-      return false;
-    }
-
-    const record = urlRecord;
-    if (!record) {
-      return false;
-    }
-
     if (record.userID === urlUser.id) {
       return true;
     }
