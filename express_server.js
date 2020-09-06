@@ -108,11 +108,11 @@ app.post("/register", (req, res) => {
   
   //validate email and password are empty
   if (!email || !password) {
-    return res.status(400).send('Email and/or password cannot be left blank. Please hit the back button and try again!');
+    return res.status(400).send('Email and/or password cannot be left blank.');
   }
   //validate if email already exists
   if (helpers.emailExists(req.body.email)) {
-    return res.status(400).send('Email address already exists. Please hit the back button and try again!');
+    return res.status(400).send('Email address already exists.');
   }
   
   const newUser = helpers.addNewUser(req.body.email, req.body.password);
@@ -130,7 +130,7 @@ app.post("/urls", (req, res) => {
   }
   const longURL = req.body.longURL;
   if (longURL === '') {
-    return res.status(400).send('WHOA! URL cannot be blank. Hit the back button and enter a URL.');
+    return res.status(400).send('WHOA! URL cannot be blank.');
   }
   
   const shortURL = helpers.generateUniqueRandomString();
@@ -144,11 +144,9 @@ app.post("/login", (req,res) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  console.log('SERVER POST /urls email:', email, 'password:', password);
-
-  //validate email and password are empty!!
+  //validate email and password are not empty
   if (!email || !password) {
-    return res.status(400).send('Email and/or password cannot be left blank. Please hit the back button and try again!');
+    return res.status(400).send('Email and/or password cannot be left blank.');
   }
   
   if (helpers.checkIfUserExists(email, password)) {
@@ -156,7 +154,7 @@ app.post("/login", (req,res) => {
     req.session.userID = user.id;
     res.redirect("/urls");  
   } else {
-    return res.status(400).send('Trouble logging in. Please hit the back button to try again or register for an account if you do not have one yet!');
+    return res.status(400).send('Trouble logging in. Please try again or register for an account if you do not have one yet!');
   }
 });
 
@@ -232,12 +230,12 @@ app.get("/urls/:shortURL", (req, res) => {
 
   const shortURL = req.params.shortURL;
   if (!shortURL) {
-    return res.status(400).send('WHOOPS! There is no URL with that code. Please try again!');
+    return res.status(400).send(fileDoesNotExistMsg);
   }
 
   const record = gURLDatabase[shortURL];
   if (!record){
-    return res.status(400).send('WHOOPS! There is no URL with that code. Please try again!');
+    return res.status(400).send(fileDoesNotExistMsg);
   }
 
   const user = gUsers[req.session.userID];
@@ -259,7 +257,7 @@ app.get("/u/:shortURL", (req, res) => {
   if (externalURL) {
     res.redirect(externalURL.longURL);
   } else {
-    return res.status(400).send('OH NO! TinyApp URL not found!');
+    return res.status(400).send('OH NO! TinyApp URL not found for ' + externalURL);
   }
   
 });
