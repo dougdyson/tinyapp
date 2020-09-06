@@ -76,7 +76,7 @@ function helpers(userDB, urlDB) {
 
   function checkUserIsURLOwner(user, urlRecord) {
 
-    if (record.userID === urlUser.id) {
+    if (urlRecord.userID === user.id) {
       return true;
     }
 
