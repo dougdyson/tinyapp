@@ -4,8 +4,6 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 
-const notLoggedInErrMessage = 'You need to be logged in for that. Please login and try again!';
-
 app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -41,8 +39,6 @@ app.get("/login", (req, res) => {
   const user = gUsers[userID];
   const urls = helpers.getURLSforUser(user, gURLDatabase);
   const templateVars = { urls, user};
-
-  console.log('SERVER GET /login user:', user);
 
   if (user) {
     res.render("urls_index", templateVars);
@@ -82,7 +78,7 @@ app.get("/urls/new", (req, res) => {
 
   const user = gUsers[req.session.userID]
   if (!user) {
-    res.status(400).send(notLoggedInErrMessage);
+    res.status(400).send('Requires login.');
   }
   
   const templateVars = { user };
@@ -121,7 +117,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send('Email and/or password cannot be left blank.');
   }
   //validate if email already exists
-  if (helpers.emailExists(email)) {
+  if (helpers.checkEmailExists(email)) {
     return res.status(400).send('Email address already exists.');
   }
   
@@ -136,8 +132,6 @@ app.post("/login", (req,res) => {
   
   const email = req.body.email;
   const password = req.body.password;
-
-  console.log('SERVER POST /login email:', email, 'password:', password);
 
   //validate email and password are not empty
   if (!email || !password) {
@@ -157,7 +151,7 @@ app.post("/urls", (req, res) => {
   
   const userID = req.session.userID;
   if (!userID) {
-    return res.status(400).send(notLoggedInErrMessage);
+    return res.status(400).send('Requires login.');
   }
   const longURL = req.body.longURL;
   if (longURL === '') {
@@ -190,7 +184,7 @@ app.post("/urls/:shortURL", (req, res) => {
   
   const userID = req.session.userID;
   if (!userID) {
-    return res.status(400).send(notLoggedInErrMessage);
+    return res.status(400).send('Requires login.');
   }
 
   if (record.userID !== userID){
@@ -210,13 +204,18 @@ app.post("/urls/:shortURL", (req, res) => {
 app.get("/urls/:shortURL/delete", (req, res) => {
   const userID = req.session.userID;
   const user = gUsers[userID];
+  const shortURL = req.params.shortURL;
   const urls = helpers.getURLSforUser(user, gURLDatabase);
   const templateVars = { urls, user };
 
-  if (user) {
+  console.log('SERVER GET /urls/:shortURL/delete user:', user);
+  
+  const urlRecord = urls[shortURL];
+  console.log('SERVER GET /urls/:shortURL/delete urlRecord:', urlRecord);
+  if (helpers.checkUserIsURLOwner(user, urlRecord)) {
     res.render("urls_index", templateVars);
   } else {
-    return res.status(400).send('Invalid user');
+    return res.status(400).send('Invalid access');
   }
 
 });
@@ -230,27 +229,24 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
   const shortURL = req.params.shortURL;
   if (!shortURL) {
-    return res.status(400).send('Invalid short URL.');
+    return res.status(400).send('Invalid short URL');
   }
 
   const record = gURLDatabase[shortURL];
-  if (!record){
-    return res.status(400).send('Unable to delete. No url found.');
+  if (!record) {
+    return res.status(400).send('No url found');
   }
 
   if (record.userID !== userID){
     return res.status(400).send('Invalid access');
   }
-  
-  console.log('SERVER POST delete gURLDatabase[shortURL]:', gURLDatabase[shortURL]);
 
   delete gURLDatabase[shortURL];
-
+  
   res.redirect("/urls");
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const urlDoesNotExistMsg = 'WHOOPS! There is no URL with that code. Please try again!'
   
   const userID = req.session.userID;
   if (!userID){
@@ -259,12 +255,12 @@ app.get("/urls/:shortURL", (req, res) => {
 
   const shortURL = req.params.shortURL;
   if (!shortURL) {
-    return res.status(400).send(urlDoesNotExistMsg);
+    return res.status(400).send('Invalid short URL');
   }
 
   const record = gURLDatabase[shortURL];
   if (!record){
-    return res.status(400).send(urlDoesNotExistMsg);
+    return res.status(400).send('Invalid short URL');
   }
 
   const user = gUsers[req.session.userID];

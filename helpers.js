@@ -23,7 +23,7 @@ function helpers(userDB, urlDB) {
     return newUser;
   }
 
-  function emailExists(email) {
+  function checkEmailExists(email) {
 
     for (const key in userDB) {
       if (userDB[key].email === email) {
@@ -46,7 +46,7 @@ function helpers(userDB, urlDB) {
 
   function checkIfUserExists(email, password) {
     
-    if (emailExists(email)) {
+    if (checkEmailExists(email)) {
       let user = getUserByEmail(email);
       const hashedPassword = user.password;
       if (bcrypt.compareSync(password, hashedPassword)) {
@@ -56,7 +56,7 @@ function helpers(userDB, urlDB) {
     return false;
   }
 
-  function emailExists(email) {
+  function checkEmailExists(email) {
 
     for (const key in userDB) {
       if (userDB[key].email === email) {
@@ -66,7 +66,7 @@ function helpers(userDB, urlDB) {
     return false;
   }
 
-  function getURLSforUser(user, urlDB){
+  function getURLSforUser(user, urlDB) {
 
     if (!user) {
       return {};
@@ -84,13 +84,33 @@ function helpers(userDB, urlDB) {
     return userURLdb;
   }
 
+  function checkUserIsURLOwner (user, urlRecord) {
+
+    const urlUser = user;
+    if (!urlUser) {
+      return false;
+    }
+
+    const record = urlRecord;
+    if (!record) {
+      return false;
+    }
+
+    if (record.userID === urlUser.id) {
+      return true;
+    }
+
+    return false;
+  }
+
   return {
     generateUniqueRandomString,
     addNewUser,
-    emailExists,
+    checkEmailExists,
     getUserByEmail,
     checkIfUserExists,
     getURLSforUser,
+    checkUserIsURLOwner
   };
 }
 

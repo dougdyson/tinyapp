@@ -24,10 +24,10 @@ describe('getUserByEmail', function() {
   });
 });
 
-const {emailExists} = helpers(testUsers);
-describe('emailExists', function() {
+const {checkEmailExists} = helpers(testUsers);
+describe('checkEmailExists', function() {
   it('should return false if a user has an invalid email', function() {
-    const email = emailExists("user@example.com")
+    const email = checkEmailExists("user@example.com")
     const expectedOutput = false;
     assert.notEqual(email, expectedOutput, true);
   });
