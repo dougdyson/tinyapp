@@ -272,13 +272,13 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   
-  const urlRecord = gURLDatabase[req.params.shortURL];
-  const externalURL = urlRecord;
+  const shortURL = gURLDatabase[req.params.shortURL];
+  const externalURL = gURLDatabase[shortURL];
 
   if (externalURL) {
     res.redirect(externalURL.longURL);
   } else {
-    return res.status(400).send('OH NO! TinyApp URL not found for ' + externalURL);
+    return res.status(400).send('OH NO! TinyApp URL not found for ' + shortURL);
   }
   
 });
